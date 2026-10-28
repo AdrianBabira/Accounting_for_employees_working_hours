@@ -1,0 +1,50 @@
+{% load tracker_tags %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Отчёт — учёт рабочего времени</title>
+  <style>
+    body { font: 16px system-ui, sans-serif; max-width: 1000px; margin: 2rem auto; padding: 0 1rem; color: #202a35; }
+    input, select, button { font: inherit; padding: .45rem; margin: .2rem; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { padding: .6rem; text-align: left; border-bottom: 1px solid #dce2e8; }
+    .errorlist { color: #a21d1d; }
+  </style>
+</head>
+<body>
+  <h1>Отчёт за период</h1>
+  <p><a href="{% url 'home' %}">← К сотрудникам</a></p>
+  <form method="get">
+    {{ form.non_field_errors }}
+    {{ form.date_from.label_tag }} {{ form.date_from }}
+    {{ form.date_to.label_tag }} {{ form.date_to }}
+    {{ form.employee.label_tag }} {{ form.employee }}
+    <button type="submit">Показать</button>
+    {{ form.date_from.errors }} {{ form.date_to.errors }} {{ form.employee.errors }}
+  </form>
+
+  {% if form.is_valid %}
+    <h2>Всего: {{ total_seconds|duration }}</h2>
+    {% if entries %}
+      <table>
+        <thead><tr><th>Сотрудник</th><th>Задача</th><th>Начало</th><th>Окончание</th><th>Время в периоде</th></tr></thead>
+        <tbody>
+          {% for entry in entries %}
+            <tr>
+              <td>{{ entry.employee.name }}</td>
+              <td>{{ entry.description }}</td>
+              <td>{{ entry.started_at|date:"d.m.Y H:i" }}</td>
+              <td>{% if entry.ended_at %}{{ entry.ended_at|date:"d.m.Y H:i" }}{% else %}В работе{% endif %}</td>
+              <td>{{ entry.report_seconds|duration }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>За выбранный период записей нет.</p>
+    {% endif %}
+  {% endif %}
+</body>
+</html>
