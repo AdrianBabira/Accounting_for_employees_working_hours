@@ -19,6 +19,11 @@ class TimeTrackingTests(TestCase):
         self.assertRedirects(response, reverse("home"))
         self.assertTrue(Employee.objects.filter(name="Пётр Смирнов").exists())
 
+    def test_admin_url_loads_and_requires_login(self):
+        response = self.client.get("/admin/")
+
+        self.assertRedirects(response, "/admin/login/?next=/admin/", fetch_redirect_response=False)
+
     def test_timer_start_and_stop(self):
         self.client.post(
             reverse("home"),
