@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Учёт рабочего времени</title>
+  <style>
+    body { font: 16px system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: #202a35; }
+    section, .employee { border: 1px solid #dce2e8; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+    input, button { font: inherit; padding: .45rem; margin: .2rem; }
+    button { cursor: pointer; } .messages { padding: .5rem; background: #edf6ff; }
+    .active { color: #12653a; } nav { margin-bottom: 1.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Учёт рабочего времени</h1>
+  <nav><a href="{% url 'report' %}">Отчёт за период</a></nav>
+  {% for message in messages %}<p class="messages">{{ message }}</p>{% endfor %}
+
+  <section>
+    <h2>Добавить сотрудника</h2>
+    <form method="post">
+      {% csrf_token %}<input type="hidden" name="action" value="add_employee">
+      {{ employee_form.name }} <button type="submit">Добавить</button>
+      {{ employee_form.name.errors }}
+    </form>
+  </section>
+
+  <h2>Сотрудники</h2>
+  {% for employee in employees %}
+    <section class="employee">
+      <h3>{{ employee.name }}</h3>
+      {% if employee.active_entry %}
+        <p class="active">Идёт работа: {{ employee.active_entry.description }} (с {{ employee.active_entry.started_at|date:"H:i" }})</p>
+        <form method="post">
+          {% csrf_token %}<input type="hidden" name="action" value="stop_timer">
+          <input type="hidden" name="entry_id" value="{{ employee.active_entry.id }}">
+          <button type="submit">Остановить</button>
+        </form>
+      {% else %}
+        <form method="post">
+          {% csrf_token %}<input type="hidden" name="action" value="start_timer">
+          <input type="hidden" name="employee_id" value="{{ employee.id }}">
+          <input type="text" name="description" maxlength="200" required placeholder="Описание задачи">
+          <button type="submit">Запустить таймер</button>
+        </form>
+      {% endif %}
+    </section>
+  {% empty %}
+    <p>Пока нет сотрудников. Добавьте первого сотрудника выше.</p>
+  {% endfor %}
+</body>
+</html>
