@@ -42,6 +42,23 @@ class TimeTrackingTests(TestCase):
         entry.refresh_from_db()
         self.assertIsNotNone(entry.ended_at)
 
+    def test_running_timer_hides_start_controls(self):
+        WorkEntry.objects.create(employee=self.employee, description="Подготовка отчёта")
+
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, "Остановить")
+        self.assertContains(response, "Подготовка отчёта")
+        self.assertNotContains(response, 'name="description"')
+        self.assertNotContains(response, "Запустить таймер")
+
+    def test_inactive_employee_sees_start_controls(self):
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, 'name="description"')
+        self.assertContains(response, "Запустить таймер")
+        self.assertNotContains(response, "Остановить")
+
     def test_repeated_timer_start_does_not_create_second_active_entry(self):
         payload = {
             "action": "start_timer",

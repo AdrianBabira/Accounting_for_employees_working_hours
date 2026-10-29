@@ -54,12 +54,15 @@ def home(request):
 
 
 def _home_context(employee_form):
+    employees = list(Employee.objects.prefetch_related("entries").all())
+    for employee in employees:
+        employee.active_entry = next(
+            (entry for entry in employee.entries.all() if entry.is_active), None
+        )
+
     return {
         "employee_form": employee_form,
-        "employees": Employee.objects.prefetch_related("entries").all(),
-        "active_entries": WorkEntry.objects.filter(ended_at__isnull=True).select_related(
-            "employee"
-        ),
+        "employees": employees,
     }
 
 

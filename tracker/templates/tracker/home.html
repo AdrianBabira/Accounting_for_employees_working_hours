@@ -30,24 +30,21 @@
   {% for employee in employees %}
     <section class="employee">
       <h3>{{ employee.name }}</h3>
-      {% with active=employee.entries.all %}
-        {% for entry in active %}
-          {% if entry.is_active %}
-            <p class="active">Идёт работа: {{ entry.description }} (с {{ entry.started_at|date:"H:i" }})</p>
-            <form method="post">
-              {% csrf_token %}<input type="hidden" name="action" value="stop_timer">
-              <input type="hidden" name="entry_id" value="{{ entry.id }}">
-              <button type="submit">Остановить</button>
-            </form>
-          {% endif %}
-        {% endfor %}
-      {% endwith %}
-      <form method="post">
-        {% csrf_token %}<input type="hidden" name="action" value="start_timer">
-        <input type="hidden" name="employee_id" value="{{ employee.id }}">
-        <input type="text" name="description" maxlength="200" required placeholder="Описание задачи">
-        <button type="submit">Запустить таймер</button>
-      </form>
+      {% if employee.active_entry %}
+        <p class="active">Идёт работа: {{ employee.active_entry.description }} (с {{ employee.active_entry.started_at|date:"H:i" }})</p>
+        <form method="post">
+          {% csrf_token %}<input type="hidden" name="action" value="stop_timer">
+          <input type="hidden" name="entry_id" value="{{ employee.active_entry.id }}">
+          <button type="submit">Остановить</button>
+        </form>
+      {% else %}
+        <form method="post">
+          {% csrf_token %}<input type="hidden" name="action" value="start_timer">
+          <input type="hidden" name="employee_id" value="{{ employee.id }}">
+          <input type="text" name="description" maxlength="200" required placeholder="Описание задачи">
+          <button type="submit">Запустить таймер</button>
+        </form>
+      {% endif %}
     </section>
   {% empty %}
     <p>Пока нет сотрудников. Добавьте первого сотрудника выше.</p>
