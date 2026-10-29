@@ -1,4 +1,3 @@
-{% load tracker_tags %}
 <!doctype html>
 <html lang="ru">
 <head>
@@ -26,7 +25,7 @@
   </form>
 
   {% if form.is_valid %}
-    <h2>Всего: {{ total_seconds|duration }}</h2>
+    <h2>Всего: {{ total_duration }}</h2>
     {% if entries %}
       <table>
         <thead><tr><th>Сотрудник</th><th>Задача</th><th>Начало</th><th>Окончание</th><th>Время в периоде</th></tr></thead>
@@ -37,7 +36,7 @@
               <td>{{ entry.description }}</td>
               <td>{{ entry.started_at|date:"d.m.Y H:i" }}</td>
               <td>{% if entry.ended_at %}{{ entry.ended_at|date:"d.m.Y H:i" }}{% else %}В работе{% endif %}</td>
-              <td>{{ entry.report_seconds|duration }}</td>
+              <td>{{ entry.report_duration }}</td>
             </tr>
           {% endfor %}
         </tbody>

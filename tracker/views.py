@@ -10,6 +10,11 @@ from .forms import EmployeeForm, ReportFilterForm, WorkEntryForm
 from .models import Employee, WorkEntry
 
 
+def _format_duration(seconds):
+    hours, remainder = divmod(int(seconds), 3600)
+    return f"{hours} ч {remainder // 60:02} мин"
+
+
 def home(request):
     if request.method == "POST":
         action = request.POST.get("action")
@@ -89,11 +94,17 @@ def report(request):
             entry.report_seconds = max(
                 0, int((entry.report_end - entry.report_start).total_seconds())
             )
+            entry.report_duration = _format_duration(entry.report_seconds)
             entries.append(entry)
             total_seconds += entry.report_seconds
 
     return render(
         request,
         "tracker/report.html",
-        {"form": form, "entries": entries, "total_seconds": total_seconds},
+        {
+            "form": form,
+            "entries": entries,
+            "total_seconds": total_seconds,
+            "total_duration": _format_duration(total_seconds),
+        },
     )
